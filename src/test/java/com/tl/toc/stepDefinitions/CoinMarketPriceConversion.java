@@ -123,6 +123,31 @@ public class CoinMarketPriceConversion {
         scenario.log("Converted amount ====> " + de);
     }
 
+    @When("I call the api with invalid {string}")
+    public void i_call_the_api_with_invalid(String datapoint) {
+        try {
+            request = RestAssured.given().relaxedHTTPSValidation();
+            this.currencyCode3 = currencyCode3;
+            scenario.log(requestUrl);
+            response = request.param("amount", convertedAmount)
+                    .param("id", datapoint.equals("InvalidArgument")?"INVALID":3541)
+                    .param("convert_id", 2791)
+                    .contentType("applicaiton/json")
+                    .accept("*/*")
+                    .header("X-CMC_PRO_API_KEY", datapoint.equals("InvalidApiKey")?"INVALID":apiKey)
+                    .get(requestUrl);
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+    }
+
+    @Then("I should receive {int} with message")
+    public void i_should_receive_with_message(Integer errorCode) {
+        response.then()
+                .assertThat()
+                .statusCode(errorCode);
+    }
+
     @After
     public void after(){
         //TODO: Implement if any data teardown or database connection tear down
